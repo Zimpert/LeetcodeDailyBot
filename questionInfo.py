@@ -42,12 +42,12 @@ def fetch_daily_leetcode_problem():
         return None
 
     question = data['data']['activeDailyCodingChallengeQuestion']['question']
+    
     title = question['title']
     link = f"https://leetcode.com/problems/{question['titleSlug']}/"
     difficulty = question['difficulty']
     ac_rate = question['acRate']
     content_html = question['content']
-
     soup = BeautifulSoup(content_html, 'html.parser')
     problem_description = soup.get_text()
 
@@ -59,10 +59,5 @@ def fetch_daily_leetcode_problem():
         "description": problem_description
     }
 
-daily_problem = fetch_daily_leetcode_problem()
-if daily_problem:
-    print(f"Today's LeetCode problem: {daily_problem['title']}")
-    print(f"Difficulty: {daily_problem['difficulty']}")
-    print(f"Acceptance Rate: {daily_problem['ac_rate']}%")
-    print(f"Link: {daily_problem['link']}")
-    print(f"Description: {daily_problem['description']}")
+
+    

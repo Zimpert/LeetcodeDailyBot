@@ -7,6 +7,7 @@ import os
 import requests
 import math
 import discord
+from questionInfo import *
 
 load_dotenv()
 TOKEN: Final[str] = os.getenv('TOKEN')
@@ -14,89 +15,43 @@ TOKEN: Final[str] = os.getenv('TOKEN')
 intents: Intents = Intents.default()
 intents.message_content = True
 client: Client = Client(intents=intents)
-        
-async def send_message(message : Message, user_message:str) -> None:
-    if not user_message:
-        print("Message was empty because intents were not enable properly.")
+
+
+def difficultychecker(difficulty):
+    if difficulty == "Hard":
+        return 0xff0000  
+    elif difficulty == "Medium":
+        return 0xFFFF00
+    elif difficulty == "Easy":
+        return 0x008000
     
-    if is_private := user_message[0] == '?':
-        user_message = user_message[1:]
-        
-    try:
-        response: str = get_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
-    except Exception as e:
-        print(e)
+async def returnInfo(channel):
+    daily_problem = fetch_daily_leetcode_problem()
 
-''' Going to use this for choosing the different languages:
-
-def get_response(user_input: str) -> str:
-    if user_input.strip().lower() == "#kills":
-        leaderboard = create_leaderboard(puuidPairs, "Kills")
-        return display_leaderboard(leaderboard, "Kills")
-    elif user_input.strip().lower() == "#assists":
-        leaderboard = create_leaderboard(puuidPairs, "Assists")
-        return display_leaderboard(leaderboard, "Assists")
-    elif user_input.strip().lower() == "#deaths":
-        leaderboard = create_leaderboard(puuidPairs,"Deaths")
-        return display_leaderboard(leaderboard, "Deaths")
-    elif user_input.strip().lower().startswith("#mastery"):
-        output = ""
-        parts = user_input.strip().split()
-        if len(parts) >= 3 and parts[0].lower() == "#mastery":
-            player_name = " ".join(parts[1:-1])
-            count = int(parts[-1])
-            for name, info in puuidPairs.items():
-                if info[0] == player_name:
-                    name = info[0]
-                    puuid = info[2]
-                    output = print_top_masteries(name, puuid, count)
-                    break
-
-            else:
-                print("Invalid command format. Please use '#mastery PlayerName Count'.")
-        return output
-'''  
-'''  
-@client.event
-async def on_message(message: Message) -> None:
-    if message.author == client.user:
-        return
-
-    username: str = str(message.author)
-    user_message: str = message.content
-    channel: str = str(message.channel)
-
-    if user_message.startswith("#kills"):
-        response = get_response(user_message)
-        await message.channel.send(response)
-    if user_message.startswith("#assists"):
-        response = get_response(user_message)
-        await message.channel.send(response)
-    if user_message.startswith("#deaths"):
-        response = get_response(user_message)
-        await message.channel.send(response)
-    if user_message.startswith("#mastery"):
-        response = get_response(user_message)
-        await message.channel.send(response)
-        
+    embed = discord.Embed(
+            title="Today's LeetCode Problem",
+            description="",
+            color= difficultychecker(daily_problem['difficulty']))
+    
+    if daily_problem:
+        embed.add_field(name="Problem", value=f"`{daily_problem['title']}`", inline=False)
+        embed.add_field(name="Difficulty", value=f"`{daily_problem['difficulty']}`", inline=False)
+        embed.add_field(name="Link", value=f"[Click here to solve the problem]({daily_problem['link']})", inline=False)
+        embed.add_field(name="Description", value=f"```python\n{daily_problem['description']}\n```", inline=False)
     else:
-        # Handle other messages if needed
-        pass
-    
-    print(f'[{channel}] {username}: "{user_message}"')
-    
-#----------------------------------------------------------------------------
-'''  
+        embed.description = "Big yikers! An error has occurred."
+
+    await channel.send(embed=embed)
 
 @tasks.loop(minutes=1)
-async def api_request_task(message: Message) -> None:
-    channel = client.get_channel(1273205099589533741) # Put your dicord channel number here inside the ()!!
-    response = get_response(user_message)
-    await message.channel.send(response)
-    #await APIrequest()  
+async def api_request_task():
+    channel = client.get_channel(1273205099589533741)  # This needs to be put to 0 when we fully upload to github. Dont want random things sent in our channel by other people.
+    if channel is not None:
+        await returnInfo(channel)  
+        print("Daily problem message sent to channel!")
+    else:
+        print("Channel not found!")
 
-        
 @client.event
 async def on_ready():
     print(f'{client.user} is now running!')
@@ -104,5 +59,5 @@ async def on_ready():
 
 async def main():
     await client.start(TOKEN)
-    
+
 asyncio.run(main())
