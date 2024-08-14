@@ -8,6 +8,7 @@ import requests
 import math
 import discord
 from questionInfo import *
+from datetime import datetime
 
 load_dotenv()
 TOKEN: Final[str] = os.getenv('TOKEN')
@@ -27,9 +28,9 @@ def difficultychecker(difficulty):
     
 async def returnInfo(channel):
     daily_problem = fetch_daily_leetcode_problem()
-
+    today = datetime.now()
     embed = discord.Embed(
-            title="Today's LeetCode Problem",
+            title=f"{today.strftime('%d/%m/%Y')}'s Daily LeetCode Problem",
             description="",
             color= difficultychecker(daily_problem['difficulty']))
     
@@ -43,8 +44,9 @@ async def returnInfo(channel):
 
     await channel.send(embed=embed)
 
+# The below code is just for testing so we dont have to wait a full 24 hours.
 @tasks.loop(minutes=1)
-async def api_request_task():
+async def send_daily_message():
     channel = client.get_channel(1273205099589533741)  # This needs to be put to 0 when we fully upload to github. Dont want random things sent in our channel by other people.
     if channel is not None:
         await returnInfo(channel)  
@@ -52,10 +54,27 @@ async def api_request_task():
     else:
         print("Channel not found!")
 
+''' This code is for the final version, it just checks the time every hour and sends the message if its a new problem.
+@tasks.loop(hours=1)
+async def check_time():
+    now = datetime.datetime.now()
+    target_time = datetime.time(02, 00)  # Set your desired time here (24-hour format)
+
+    if now.time() >= target_time and now.time() < (datetime.datetime.combine(datetime.date.today(), target_time) + datetime.timedelta(minutes=1)).time():
+        await send_daily_message()
+
+async def send_daily_message():
+    channel = client.get_channel(1273205099589533741)  # This needs to be put to 0 when we fully upload to github. Dont want random things sent in our channel by other people.
+    if channel is not None:
+        await returnInfo(channel)  
+        print("Daily problem message sent to channel!")
+    else:
+        print("Channel not found!")
+'''
 @client.event
 async def on_ready():
     print(f'{client.user} is now running!')
-    api_request_task.start()
+    send_daily_message.start()
 
 async def main():
     await client.start(TOKEN)
