@@ -37,6 +37,7 @@ async def returnInfo(channel):
     if daily_problem:
         embed.add_field(name="Problem", value=f"`{daily_problem['title']}`", inline=False)
         embed.add_field(name="Difficulty", value=f"`{daily_problem['difficulty']}`", inline=False)
+        embed.add_field(name="Topics", value=f"`{daily_problem['Topics']}`", inline=False)
         embed.add_field(name="Link", value=f"[Click here to solve the problem]({daily_problem['link']})", inline=False)
         embed.add_field(name="Description", value=f"```python\n{daily_problem['description']}\n```", inline=False)
     else:

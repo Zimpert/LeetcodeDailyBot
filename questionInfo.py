@@ -47,6 +47,10 @@ def fetch_daily_leetcode_problem():
     link = f"https://leetcode.com/problems/{question['titleSlug']}/"
     difficulty = question['difficulty']
     ac_rate = question['acRate']
+
+    names = [item['name'] for item in question['topicTags']]
+    formatted_names = ''.join(f"['{name}']" for name in names)
+    topicTags = formatted_names
     content_html = question['content']
     soup = BeautifulSoup(content_html, 'html.parser')
     problem_description = soup.get_text()
@@ -56,8 +60,6 @@ def fetch_daily_leetcode_problem():
         "link": link,
         "difficulty": difficulty,
         "ac_rate": ac_rate,
-        "description": problem_description
+        "description": problem_description,
+        "Topics": topicTags
     }
-
-
-    
