@@ -30,10 +30,11 @@ def fetch_python_solution_from_algo_monster(problem_number):
     # Return the code text
     return code_text
 
-if __name__ == "__main__":
-    problem_number = "860"  # Replace with the actual problem number
-    python_solution = fetch_python_solution_from_algo_monster(problem_number)
-    if python_solution:
-        print(f"Python Solution Code:\n{python_solution}")
-    else:
-        print("No solution found or could not retrieve the solution.")
+
+#if __name__ == "__main__":
+#    problem_number = "860"  # Replace with the actual problem number
+#    python_solution = fetch_python_solution_from_algo_monster(problem_number)
+#    if python_solution:
+#        print(f"Python Solution Code:\n{python_solution}")
+#    else:
+#        print("No solution found or could not retrieve the solution.")
